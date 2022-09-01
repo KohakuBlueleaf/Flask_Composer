@@ -3,6 +3,7 @@ from typing import *
 from flask import Flask, Blueprint
 from flask import request
 from .handler import *
+from .handler import get_reverse_proxy_handler
 
 
 __all__ = [
@@ -64,3 +65,23 @@ class Composer:
                             f'static-site{loc}',
                             view_func = handler
                         )
+                
+                case {
+                    'location': str() as loc,
+                    'proxy_server': str() as proxy,
+                    **rest
+                }:
+                    handler = get_reverse_proxy_handler(
+                        loc, proxy,
+                        ignore_loc = rest.get('ignore_location',False)
+                    )
+                    self.app.add_url_rule(
+                        f'{loc.rstrip("/")}/',
+                        f'reverse-proxy{loc}',
+                        view_func=handler
+                    )
+                    self.app.add_url_rule(
+                        f'{loc.rstrip("/")}/<path:route>',
+                        f'reverse-proxy{loc}',
+                        view_func=handler
+                    )

@@ -5,10 +5,10 @@ from flask_composer import Composer
 config = [
     {
         'location': '/',
-        'root': '~/web/pixelart-generator/frontend/dist/',
-        'before_request': True,
+        'proxy_server': 'http://127.0.0.1:3000',
     }
 ]
+
 
 app = Flask(__name__)
 Composer(app, config)

@@ -2,8 +2,12 @@ from typing import *
 
 import os
 
-from flask import Flask, Response
+import requests
+
+from flask import Flask, Response, request
 from flask import make_response, send_file
+
+from .utils import *
 
 
 __all__ = [
@@ -24,9 +28,9 @@ def get_static_site_handler(
     # GET /static-site/../../../../etc/ssh/ssh_host_ed25519_key
     route_table = {}
     for dir_path, _, f_list in os.walk(root):
-        route_path = dir_path[root_len:].strip('/')
+        route_path = dir_path[root_len:].replace('\\','/').strip('/')
         for file in f_list:
-            f_route = os.path.join(route_path, file)
+            f_route = os.path.join(route_path, file).replace('\\','/')
             f_path = os.path.join(dir_path, file)
             route_table[f_route] = f_path
             
@@ -40,6 +44,38 @@ def get_static_site_handler(
         if route in route_table:
             return send_file(route_table[route])
         return make_response("Object doesn't exist", 404)
+    
+    return handler
+
+
+def get_reverse_proxy_handler(
+    loc: str,
+    proxy_server: str,
+    ignore_loc: bool = False,
+):
+    print(loc, proxy_server)
+    def handler(route='') -> Response:
+        rq_headers, body = parse_flask_Request(request)
+        if ignore_loc:
+            url = os.path.join(
+                proxy_server,
+                route,
+            ).replace('\\','/')
+        else:
+            url = os.path.join(
+                proxy_server,
+                loc.lstrip('/'),
+                route,
+            ).replace('\\','/')
+            
+        resp = requests.request(
+            request.method.lower(),
+            url,
+            headers = rq_headers,
+            data = body
+        )
+        status, headers, body = parse_rq_response(resp)
+        return Response(body, status, headers)
     
     return handler
 
