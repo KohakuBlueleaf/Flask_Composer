@@ -12,13 +12,11 @@ or others thing together.
 
 setup(
     name = 'Flask-Composer',
-    packages = find_packages(
-        where = 'src'
-    ),
-    package_dir = {"": "src"},
+    packages = find_packages(),
     zip_safe = False,
     requires = [
         'flask',
+        'requests'
     ],
     version = '0.1.0',
     description = desc,
