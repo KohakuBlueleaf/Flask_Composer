@@ -9,6 +9,17 @@ from .handler import get_reverse_proxy_handler
 __all__ = [
     'Composer',
 ]
+HTTP_METHODS = [
+    'GET', 
+    'HEAD', 
+    'POST', 
+    'PUT', 
+    'DELETE', 
+    'CONNECT', 
+    'OPTIONS', 
+    'TRACE', 
+    'PATCH'
+]
 
 
 class Composer:
@@ -75,13 +86,17 @@ class Composer:
                         loc, proxy,
                         ignore_loc = rest.get('ignore_location',False)
                     )
-                    self.app.add_url_rule(
-                        f'{loc.rstrip("/")}/',
-                        f'reverse-proxy{loc}',
-                        view_func=handler
-                    )
-                    self.app.add_url_rule(
-                        f'{loc.rstrip("/")}/<path:route>',
-                        f'reverse-proxy{loc}',
-                        view_func=handler
-                    )
+                    loc = loc.rstrip('/')
+                    if 'methods' in rest:
+                        methods = rest['methods']
+                    else:
+                        methods = HTTP_METHODS
+                    
+                    for rule in (loc, f'{loc}/', f'{loc}/<path:route>'):
+                        if rule:
+                            self.app.add_url_rule(
+                                f'{rule}',
+                                f'reverse-proxy{loc}',
+                                view_func = handler,
+                                methods = methods
+                            )

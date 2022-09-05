@@ -12,6 +12,7 @@ from .utils import *
 
 __all__ = [
     'get_static_site_handler',
+    'get_reverse_proxy_handler'
 ]
 
 
@@ -67,7 +68,7 @@ def get_reverse_proxy_handler(
                 loc.lstrip('/'),
                 route,
             ).replace('\\','/')
-            
+        
         resp = requests.request(
             request.method.lower(),
             url,
