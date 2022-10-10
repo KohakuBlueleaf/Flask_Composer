@@ -94,6 +94,7 @@ class Composer:
                     
                     for rule in (loc, f'{loc}/', f'{loc}/<path:route>'):
                         if rule:
+                            print(rule)
                             self.app.add_url_rule(
                                 f'{rule}',
                                 f'reverse-proxy{loc}',

@@ -53,21 +53,26 @@ def get_reverse_proxy_handler(
     loc: str,
     proxy_server: str,
     ignore_loc: bool = False,
+    no_headers: bool = False
 ):
     print(loc, proxy_server)
     def handler(route='') -> Response:
+        query = request.query_string.decode()
         rq_headers, body = parse_flask_Request(request)
         if ignore_loc:
             url = os.path.join(
                 proxy_server,
                 route,
-            ).replace('\\','/')
+            ).replace('\\','/')+f'?{query}'
         else:
             url = os.path.join(
                 proxy_server,
                 loc.lstrip('/'),
                 route,
-            ).replace('\\','/')
+            ).replace('\\','/')+f'?{query}'
+        
+        if no_headers:
+            rq_headers = {}
         
         resp = requests.request(
             request.method.lower(),
