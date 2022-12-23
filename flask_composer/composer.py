@@ -66,16 +66,12 @@ class Composer:
                         def before_req_handler():
                             return handler(request.path.lstrip('/'))
                     else:
-                        self.app.add_url_rule(
-                            f'{loc.rstrip("/")}/',
-                            f'static-site{loc}',
-                            view_func = handler
-                        )
-                        self.app.add_url_rule(
-                            f'{loc.rstrip("/")}/<path:route>',
-                            f'static-site{loc}',
-                            view_func = handler
-                        )
+                        for rule in (loc, f'{loc}/', f'{loc}/<path:route>'):
+                            self.app.add_url_rule(
+                                rule,
+                                f'static-site{loc}',
+                                view_func = handler
+                            )
                 
                 case {
                     'location': str() as loc,
@@ -96,7 +92,7 @@ class Composer:
                         if rule:
                             print(rule)
                             self.app.add_url_rule(
-                                f'{rule}',
+                                rule,
                                 f'reverse-proxy{loc}',
                                 view_func = handler,
                                 methods = methods
