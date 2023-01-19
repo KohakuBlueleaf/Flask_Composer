@@ -53,7 +53,8 @@ def get_reverse_proxy_handler(
     loc: str,
     proxy_server: str,
     ignore_loc: bool = False,
-    no_headers: bool = False
+    no_headers: bool = False,
+    return_header_black_list: set[str] = None
 ):
     print(loc, proxy_server)
     def handler(route='') -> Response:
@@ -74,14 +75,19 @@ def get_reverse_proxy_handler(
         if no_headers:
             rq_headers = {}
         
-        resp = requests.request(
+        resp_original = requests.request(
             request.method.lower(),
             url,
             headers = rq_headers,
             data = body
         )
-        status, headers, body = parse_rq_response(resp)
-        return Response(body, status, headers)
+        status, headers, body = parse_rq_response(resp_original )
+        resp = flask.make_response(body, status)
+        
+        for k, v in headers:
+            if k in return_header_black_list: continue
+            resp.headers[k] = v
+        return resp
     
     return handler
 
