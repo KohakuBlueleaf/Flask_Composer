@@ -60,7 +60,7 @@ class Composer:
                     **rest
                 }:
                     #static site handling
-                    handler = get_static_site_handler(root)
+                    handler = get_static_site_handler(root, **rest)
                     if rest.get('before_request', False):
                         @self.app.before_request
                         def before_req_handler():
@@ -80,7 +80,7 @@ class Composer:
                 }:
                     handler = get_reverse_proxy_handler(
                         loc, proxy,
-                        ignore_loc = rest.get('ignore_location',False)
+                        **rest
                     )
                     loc = loc.rstrip('/')
                     if 'methods' in rest:

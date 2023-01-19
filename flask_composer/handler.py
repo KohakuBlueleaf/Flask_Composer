@@ -54,7 +54,7 @@ def get_reverse_proxy_handler(
     proxy_server: str,
     ignore_loc: bool = False,
     no_headers: bool = False,
-    return_header_black_list: set[str] = None
+    return_header_black_list: set[str] = {}
 ):
     print(loc, proxy_server)
     def handler(route='') -> Response:
